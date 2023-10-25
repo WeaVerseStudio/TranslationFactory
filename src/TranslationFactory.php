@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PrograMistV1\TranslationFactory;
+namespace PrograMistV1;
 
 use pocketmine\lang\Language;
 use pocketmine\lang\Translatable;

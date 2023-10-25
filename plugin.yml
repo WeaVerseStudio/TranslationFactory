@@ -1,7 +1,7 @@
 ---
 name: TranslationFactory
 version: 1.0.0
-main: PrograMistV1\TranslationFactory\TranslationFactory
+main: PrograMistV1\TranslationFactory
 api: 5.0.0
-src-namespace-prefix: PrograMistV1\TranslationFactory
+src-namespace-prefix: PrograMistV1
 ...
