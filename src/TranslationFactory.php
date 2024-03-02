@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
 
 class TranslationFactory extends PluginBase{
 
-    private const string DEFAULT_LANG = "en_us";
+    private const DEFAULT_LANG = "en_us";
 
     /**
      * @link https://wiki.bedrock.dev/concepts/text-and-translations.html#vanilla-languages
