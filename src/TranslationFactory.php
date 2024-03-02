@@ -17,7 +17,7 @@ class TranslationFactory extends PluginBase{
     /**
      * @link https://wiki.bedrock.dev/concepts/text-and-translations.html#vanilla-languages
      */
-    public const array ALL_LANG_CODES = [
+    public const ALL_LANG_CODES = [
         "id_id" => "Indonesian",
         "da_dk" => "Danish",
         "de_de" => "German",
