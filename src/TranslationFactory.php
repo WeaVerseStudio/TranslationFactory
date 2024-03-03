@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PrograMistV1;
 
-use pocketmine\lang\Language;
+use pocketmine\lang\KnownTranslationKeys;
 use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
@@ -53,30 +53,47 @@ class TranslationFactory extends PluginBase{
      * @var Language[]
      */
     private static array $languages = [];
+    private static array $plugins = [];
 
-    protected function onEnable() : void{
-        foreach(self::ALL_LANG_CODES as $lang_code => $language){
-            $path=Path::join($this->getDataFolder(), $lang_code.".ini");
-            if(!file_exists($path)){
-                $file = fopen($path, "w");
-                fwrite($file, "language.name=".$language);
-                fclose($file);
-            }
+    protected function onLoad() : void{
+        @mkdir(Path::join($this->getDataFolder(), "players"));
+        foreach(self::ALL_LANG_CODES as $langCode => $lang){
+            self::$languages[$langCode] = new Language($langCode, self::DEFAULT_LANG);
         }
-        $files = scandir($this->getDataFolder());
-        foreach($files as $file){
-            if(preg_match('/\.(ini)/', $file)){
-                $langCode = str_replace(".ini", "", $file);
-                self::$languages[$langCode] = new Language($langCode, $this->getDataFolder(), self::DEFAULT_LANG);
-            }
+    }
+
+    public static function addPluginTranslations(PluginBase $plugin) : void{
+        if(isset(self::$plugins[$plugin::class])){
+            return;
+        }
+        self::$plugins[$plugin::class] ??= true;
+
+        $path = Path::join($plugin->getDataFolder(), "languages");
+        self::generateLanguageFiles($path);
+        $languages = array_intersect_key(Language::getLanguageList($path), self::ALL_LANG_CODES);
+
+        foreach($languages as $langCode => $lang){
+            self::$languages[$langCode]->addTranslations($path, $langCode);
         }
     }
 
     public static function translate(Player $player, Translatable $translatable) : string{
-        $playerLang = strtolower($player->getPlayerInfo()->getExtraData()["LanguageCode"]);
+        $playerLang = strtolower($player->getLocale());
         if(in_array($playerLang, array_keys(self::$languages))){
             return self::$languages[$playerLang]->translate($translatable);
         }
         return self::$languages[self::DEFAULT_LANG]->translate($translatable);
+    }
+
+    private static function generateLanguageFiles(string $dataPath) : void{
+        foreach(self::ALL_LANG_CODES as $langCode => $language){
+            $path = Path::join($dataPath, $langCode . ".ini");
+            if(!file_exists($path)){
+                @mkdir($dataPath);
+                $file = fopen($path, "w");
+                fwrite($file, KnownTranslationKeys::LANGUAGE_NAME . "=" . $language);
+                fclose($file);
+            }
+        }
     }
 }
