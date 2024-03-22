@@ -68,12 +68,13 @@ class TranslationFactory extends PluginBase{
         }
         self::$plugins[$plugin::class] ??= true;
 
-        $path = Path::join($plugin->getDataFolder(), "languages");
-        self::generateLanguageFiles($path);
-        $languages = array_intersect_key(Language::getLanguageList($path), self::ALL_LANG_CODES);
-
-        foreach($languages as $langCode => $lang){
-            self::$languages[$langCode]->addTranslations($path, $langCode);
+        $path = Path::join($plugin->getResourceFolder(), "languages");
+        if(!file_exists($path)){
+            $plugin->getLogger()->alert("Language directory does not exist");
+            return;
+        }
+        foreach(Language::getLanguageList($path) as $langCode){
+            self::$languages[$langCode]->addTranslations(Path::join($path, $langCode . ".ini"), $langCode);
         }
     }
 
@@ -85,11 +86,12 @@ class TranslationFactory extends PluginBase{
         return self::$languages[self::DEFAULT_LANG]->translate($translatable);
     }
 
-    private static function generateLanguageFiles(string $dataPath) : void{
+    public static function generateLanguageFiles(PluginBase $plugin) : void{
         foreach(self::ALL_LANG_CODES as $langCode => $language){
-            $path = Path::join($dataPath, $langCode . ".ini");
+            $langPath = Path::join($plugin->getResourceFolder(), "languages");
+            $path = Path::join($langPath, $langCode . ".ini");
             if(!file_exists($path)){
-                @mkdir($dataPath);
+                @mkdir($langPath);
                 $file = fopen($path, "w");
                 fwrite($file, KnownTranslationKeys::LANGUAGE_NAME . "=" . $language);
                 fclose($file);
